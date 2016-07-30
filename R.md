@@ -362,7 +362,24 @@ t.test(Sepal.Length ~ Species, df1)
 #  -0.8819731 -0.4220269
 # sample estimates:
 # mean in group versicolor  mean in group virginica 
-#                    5.936                    6.588 
+#                    5.936                    6.588
+
+# t-Критерий Стьюдента для независимых выборок
+t.test(Var1 ~ Var2, data) # если первая переменная количественная, а вторая фактор
+t.test(data$Var1, data$Var2) # если обе переменные количественные
+
+# t-Критерий Стьюдента для зависимых выборок
+t.test(data$Var1, data$Var2, paired = T)
+
+# функция by(), которая применяет различные функции на каждом уровне фактора.
+by(iris$Sepal.Length, INDICES = iris$Species, shapiro.test) # проверка на нормальность переменной Sepal.Length в трех разных группах в соответствии с переменной Species
+
+# тест Вилкоксона, он же тест Манна-Уитни. Используется когда некоторые требования т-критерия не выполняются
+wilcox.test(Sepal.Length ~ Species, df1)
+#     Wilcoxon rank sum test with continuity correction
+# data:  Sepal.Length by Species
+# W = 526, p-value = 5.869e-07
+# alternative hypothesis: true location shift is not equal to 0
 ```
 
 ---
