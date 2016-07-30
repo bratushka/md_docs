@@ -143,7 +143,57 @@ cbind() # join dataframes by columns (horizontally)
 read.table() # reads any file
 read.csv() # reads comma separated file
 read.csv2() # reads semicolon separated file
+```
 
+---
+
+### Tables
+
+```py
+df <- read.csv("grants.csv")
+df$status <- factor(df$status, labels = c("Not funded", "Funded"))
+
+t1 <- table(df$status)
+# Not funded     Funded 
+#        747        673
+dim(t1)
+# 2
+
+t2 <- table(df$status, df$field)
+#            beh_cog bio chem physics soc
+# Not funded     100 473   60      70  44
+# Funded          65 432   66      78  32
+t2[, "bio"]
+# Not funded     Funded 
+#        473        432 
+dim(t2)
+# 2 5
+dimnames(t2)
+# [[1]]
+# "Not funded" "Funded"
+# [[2]]
+# "beh_cog" "bio"     "chem"    "physics" "soc"
+t2 <- table(status = df$status, field = df$field)
+#             field
+# status       beh_cog bio chem physics soc
+#   Not funded     100 473   60      70  44
+#   Funded          65 432   66      78  32
+
+prop.table(t2)
+#             field
+# status          beh_cog        bio       chem    physics        soc
+#   Not funded 0.07042254 0.33309859 0.04225352 0.04929577 0.03098592
+#   Funded     0.04577465 0.30422535 0.04647887 0.05492958 0.02253521
+prop.table(t2, 1)
+#             field
+# status          beh_cog        bio       chem    physics        soc
+#   Not funded 0.13386881 0.63319946 0.08032129 0.09370817 0.05890228
+#   Funded     0.09658247 0.64190193 0.09806835 0.11589896 0.04754829
+prop.table(t2, 2)
+#             field
+# status         beh_cog       bio      chem   physics       soc
+#   Not funded 0.6060606 0.5226519 0.4761905 0.4729730 0.5789474
+#   Funded     0.3939394 0.4773481 0.5238095 0.5270270 0.4210526
 ```
 
 ---
@@ -248,6 +298,75 @@ aggregate(cbind(mpg, disp) ~ am, df, median)
 
 ---
 
+### Tests
+
+```py
+df <- read.csv("grants.csv")
+df$status <- factor(df$status, labels = c("Not funded", "Funded"))
+t1 <- table(df$status)
+t2 <- table(df$status, df$field)
+
+binom.test(t1)
+#     Exact binomial test
+# data:  t1
+# number of successes = 747, number of trials = 1420, p-value =
+# 0.05268
+# alternative hypothesis: true probability of success is not equal to 0.5
+# 95 percent confidence interval:
+#  0.4997023 0.5523023
+# sample estimates:
+# probability of success 
+#              0.5260563
+
+chisq.test(t1)
+#     Chi-squared test for given probabilities
+# data:  t1
+# X-squared = 3.8563, df = 1, p-value = 0.04956
+
+chisq.test(t2)
+#     Pearson's Chi-squared test
+# data:  t2
+# X-squared = 8.0601, df = 4, p-value = 0.0894
+
+# Используется в том случае, когда выборка небольшая и наблюдений недостаточно
+fisher.test(t2)
+#     Fisher's Exact Test for Count Data
+# data:  t2
+# p-value = 0.08921
+# alternative hypothesis: two.sided
+
+-----------------------------------
+
+df <- iris
+df1 <- subset(df, Species %in% c("versicolor", "virginica"))
+
+# проверка на нормальность распределения переменной
+shapiro.test(df1$Sepal.Length)
+#     Shapiro-Wilk normality test
+# data:  df1$Sepal.Length
+# W = 0.98054, p-value = 0.1464
+
+# тест гомогенности распределения
+bartlett.test(Sepal.Length ~ Species, df1)
+#     Bartlett test of homogeneity of variances
+# data:  Sepal.Length by Species
+# Bartlett's K-squared = 2.0949, df = 1, p-value = 0.1478
+
+# проверка одинаковы ли средние значения в генеральных совокупностях двух выборок
+t.test(Sepal.Length ~ Species, df1)
+#     Welch Two Sample t-test
+# data:  Sepal.Length by Species
+# t = -5.6292, df = 94.025, p-value = 1.866e-07
+# alternative hypothesis: true difference in means is not equal to 0
+# 95 percent confidence interval:
+#  -0.8819731 -0.4220269
+# sample estimates:
+# mean in group versicolor  mean in group virginica 
+#                    5.936                    6.588 
+```
+
+---
+
 ### Libraries
 
 ```py
@@ -307,4 +426,38 @@ descr_by = psych::describeBy(mtcars, group = list(df$vs))
 # `descr_by` is a list. We can access the 2 matrix by descr_by$`0` and descr_by$`1`
 # In order to get a matrix in `descr_by` we should do `psych::describeBy(..., mat = TRUE)`
 
+```
+
+---
+
+### Basic plots
+
+```py
+df <- mtcars
+hist(df$mpg) # простая гистограмма
+boxplot(mpg ~ am, df) # боксплот с разбивкой по типу коробки передач
+plot(df$mpg) # самый простой скаттерплот
+```
+
+---
+
+### ggplot2
+
+```py
+df <- mtcars
+
+ggplot() # основная функция, на данный момент не несёт никакой геометрической нагрузки.
+geom_***() # отрисовка данных на графике
+aes() # aesthetics - глобальные данные для графика. Если нужно использовать переменные - их нужно использовать в aes(). aes() внутри функции ggplot() применяется ко всем geom_***(), aes() внутри отдельных geom_***() применяется только к родительскому geom_***()
+
+# Параметры aes() :
+# - x = данные для оси `x`
+# - y = данные для оси `y`
+# - fill = заливка графика. Если вместо цвета передать список факторов - цвета определятся автоматически
+# - col = цвет границы графика
+# - alpha = прозрачность заливки
+
+ggplot(df, aes(x = mpg)) # получаем данные из переменной df$mpg на ось `x`, но график ещё не рисуем
+ggplot(df, aes(x = mpg)) + geom_histogram() # рисуем гистограмму df$mpg на графике
+ggplot(df, aes(x = mpg)) + geom_histogram() + geom_dotplot() # рисуем и гистограмму df$mpg, и дотплот df$mpg на графике
 ```
