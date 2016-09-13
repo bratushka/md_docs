@@ -478,3 +478,34 @@ ggplot(df, aes(x = mpg)) # получаем данные из переменно
 ggplot(df, aes(x = mpg)) + geom_histogram() # рисуем гистограмму df$mpg на графике
 ggplot(df, aes(x = mpg)) + geom_histogram() + geom_dotplot() # рисуем и гистограмму df$mpg, и дотплот df$mpg на графике
 ```
+
+---
+
+### Зависимости
+
+```py
+# DV - dependent variable - зависимая переменная
+# IV - independent variable - независимая переменная
+
+DV ~ IV # IV влияет на DV
+DV ~ IV1 + IV2 # `эффекты`: IV1 и IV2 влияют на DV
+DV ~ IV1:IV2 # `взаимодействие`: влияние IV1 на DV зависит от IV2
+
+DV ~ IV1 + IV2 + IV1:IV2 # `эффекты` + `взаимодействие`
+# DV ~ IV1 * IV2 -- то же самое
+
+DV ~ (IV1 + IV2 + IV3)^2 # все предикторы и все взаимосвязи
+```
+
+---
+
+### Дисперсионный анализ
+
+```py
+fit <- aov(price ~ origin, data = mydata)
+summary(fit)
+#             Df Sum Sq Mean Sq F value Pr(>F)  
+# origin       1  94107   94107    6.65 0.0189 *
+# Residuals   18 254729   14152
+# Вывод: гипотезу о том, что цены не зависят от происхождения товара, можно отклонить
+```
